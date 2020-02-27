@@ -70,6 +70,7 @@ classdef dynamics
 		JW = obj.J * obj.W;
 		WJW = cross(obj.W, JW);
 		JW_dot = obj.M - WJW;
+		obj.W_dot = inv(obj.J) * (WJW - obj.M);
 
 		ret_obj = obj;
 	end

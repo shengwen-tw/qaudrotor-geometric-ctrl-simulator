@@ -15,9 +15,9 @@ function quadrotor_sim
 	uav_dynamics.M = [0; 0 ;0];
 	uav_dynamics.R = math.euler_to_dcm(deg2rad(0), deg2rad(0), deg2rad(0));
 
-	uav_dynamics.J = [1 0 0;
-			  0 1 0;
-			  0 0 1];
+	uav_dynamics.J = [0.01466 0 0;
+			  0 0.01466 0;
+			  0 0 0.02848];
 
 	%plot datas
 	time_arr = zeros(1, ITERATION_TIMES);
@@ -25,6 +25,8 @@ function quadrotor_sim
 	pos_v_arr = zeros(1, ITERATION_TIMES);
 	pos_x_arr = zeros(1, ITERATION_TIMES);
 	prv_angle_arr = zeros(1, ITERATION_TIMES);
+
+	uav_dynamics.M = [0.01, 0, 0];
 
 	for i = 1: ITERATION_TIMES
 		uav_dynamics = update(uav_dynamics);
