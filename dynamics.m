@@ -16,6 +16,8 @@ classdef dynamics
 	R;       %attitude, direction cosine matrix
 	R_det;
 
+	prv_angle;
+
 	f;       %control force
 	M;       %control moment
 	end
@@ -44,6 +46,9 @@ classdef dynamics
 		obj.R = math.dcm_orthonormalize(obj.R);
 		%obj.R_det = det(obj.R);
 		%disp(obj.R_det)
+
+		%calculate the angle of principle rotation vector
+		obj.prv_angle = math.get_prv_angle(obj.R);
 
 		%calculate position by integrating velocity
 		obj.x = obj.integrator(obj.x, obj.v, obj.dt);

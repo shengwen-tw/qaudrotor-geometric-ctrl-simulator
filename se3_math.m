@@ -24,13 +24,13 @@ classdef se3_math
 		       dcm31 dcm32 dcm33;];
 	end
 
-	function vec=vee_map_3x3(obj, mat)
+	function vec = vee_map_3x3(obj, mat)
 		vec=[mat(3, 2);
 		     mat(1, 3);
 		     mat(2, 1)];
 	end
 
-	function mat=hat_map_3x3(obj, vec)
+	function mat = hat_map_3x3(obj, vec)
 		mat=[0.0 -vec(3) +vec(2);
 		     +vec(3) 0.0 -vec(1);
 		     -vec(2) +vec(1) 0.0];
@@ -47,6 +47,10 @@ classdef se3_math
 		y_normalized = 0.5 * (3 - dot(y_orthogonal, y_orthogonal)) * y_orthogonal;
 		z_normalized = 0.5 * (3 - dot(z_orthogonal, z_orthogonal)) * z_orthogonal;
 		R_orthonormal = [x_normalized; y_normalized; z_normalized];
+	end
+
+	function angle_rad = get_prv_angle(obj, R)
+		angle_rad = acos(0.5 * (R(1, 1) + R(2, 2) + R(3, 3) - 1));
 	end
 	end
 end
