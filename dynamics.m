@@ -40,9 +40,10 @@ classdef dynamics
 
 		%calculate rotation matrix by intergrating DCM differential equation
 		R_dot = obj.R * math.hat_map_3x3(obj.W);
-		obj.R(:, 1) = obj.integrator(obj.R(:, 1), R_dot, obj.dt);
-		obj.R(:, 2) = obj.integrator(obj.R(:, 2), R_dot, obj.dt);
-		obj.R(:, 3) = obj.integrator(obj.R(:, 3), R_dot, obj.dt);
+		I = eye(3);
+		Wdt = [obj.W(1) * obj.dt; obj.W(2) * obj.dt; obj.W(3) * obj.dt];
+		dR = math.hat_map_3x3(Wdt) + I;
+		obj.R = obj.R * dR;
 		obj.R = math.dcm_orthonormalize(obj.R);
 		%obj.R_det = det(obj.R);
 		%disp(obj.R_det)
