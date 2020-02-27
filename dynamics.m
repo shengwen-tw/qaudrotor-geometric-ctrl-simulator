@@ -41,9 +41,8 @@ classdef dynamics
 
 		%calculate rotation matrix by intergrating DCM differential equation
 		%read "Direction Cosine Matrix IMU: Theory" for detailed explanation
-		R_dot = obj.R * math.hat_map_3x3(obj.W);
-		I = eye(3);
 		Wdt = [obj.W(1) * obj.dt; obj.W(2) * obj.dt; obj.W(3) * obj.dt];
+		I = eye(3);
 		dR = math.hat_map_3x3(Wdt) + I;
 		%according to definition of SO(3), to rotate R by dR, the correct way
 		%to do is multiplication rather than addition, since SO(3) is not closed
