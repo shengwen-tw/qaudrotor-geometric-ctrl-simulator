@@ -2,7 +2,6 @@
 
 classdef se3_math
 	methods
-
 	function dcm = euler_to_dcm(obj, roll, pitch ,yaw)
 		%R = Rz(psi)Ry(theta)Rx(phi)
 		cos_phi = cos(double(roll));
@@ -37,5 +36,17 @@ classdef se3_math
 		     -vec(2) +vec(1) 0.0];
 	end
 
+	function R_orthonormal = dcm_orthonormalize(obj, R)
+		x = [R(1, 1) R(1, 2) R(1, 3)];
+		y = [R(2, 1) R(2, 2) R(2, 3)];
+		error = dot(x, y);
+		x_orthogonal = x - (0.5 * error * y);
+		y_orthogonal = y - (0.5 * error * x);
+		z_orthogonal = cross(x_orthogonal, y_orthogonal);
+		x_normalized = 0.5 * (3 - dot(x_orthogonal, x_orthogonal)) * x_orthogonal;
+		y_normalized = 0.5 * (3 - dot(y_orthogonal, y_orthogonal)) * y_orthogonal;
+		z_normalized = 0.5 * (3 - dot(z_orthogonal, z_orthogonal)) * z_orthogonal;
+		R_orthonormal = [x_normalized; y_normalized; z_normalized];
+	end
 	end
 end

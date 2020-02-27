@@ -41,8 +41,9 @@ classdef dynamics
 		obj.R(:, 1) = obj.integrator(obj.R(:, 1), R_dot, obj.dt);
 		obj.R(:, 2) = obj.integrator(obj.R(:, 2), R_dot, obj.dt);
 		obj.R(:, 3) = obj.integrator(obj.R(:, 3), R_dot, obj.dt);
-		obj.R_det = det(obj.R);
-		disp(obj.R_det)
+		obj.R = math.dcm_orthonormalize(obj.R);
+		%obj.R_det = det(obj.R);
+		%disp(obj.R_det)
 
 		%calculate position by integrating velocity
 		obj.x = obj.integrator(obj.x, obj.v, obj.dt);

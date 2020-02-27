@@ -35,7 +35,8 @@ function quadrotor_sim
 		time_arr(i) = i * uav_dynamics.dt;
 	end
 
-	figure(1)
+	figure(1);
 	plot(time_arr, pos_x_arr);
+	disp("press any button to leave");
 	pause;
 end
