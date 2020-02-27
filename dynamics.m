@@ -1,54 +1,61 @@
 classdef dynamics
 	properties
-	dt = 0 %[sec]
-	mass = 0 %[kg]
+	dt;      %[sec]
+	mass;    %[kg]
+
+	g = 9.8; %gravitational acceleration
 	
-	J = [0 0 0; %inertia matrix [kg*m^2]
-	     0 0 0;
-	     0 0 0]
+	J;       %inertia matrix [kg*m^2]
 
-	x = [0; 0; 0] %initial position
-	v = [0; 0; 0] %initial velocity
-	a = [0; 0; 0] %initial acceleration
-	W = [0; 0; 0] %intial angular velocity 
-	W_dot = [0; 0; 0] %initial angular acceleration
+	x;       %initial position
+	v;       %initial velocity
+	a;       %initial acceleration
+	W;       %intial angular velocity 
+	W_dot;   %initial angular acceleration
 
-	f = [0; 0; 0]; %control force
-	M = [0; 0; 0]; %control moment
+	R;       %attitude, direction cosine matrix
+
+	f;       %control force
+	M;       %control moment
 	end
 
 	methods
-	function set_iterate_time_sec(obj, dt)
-		obj.dt = dt;
+	function f_next = integrator(obj, f_now, f_dot, dt)
+		f_next = [f_now(1) + (f_dot(1) * dt);
+			  f_now(2) + (f_dot(2) * dt);
+			  f_now(3) + (f_dot(3) * dt)];
 	end
 
-	function set_mass_value(obj, mass)
-		obj.mass = mass;
-	end
+	function ret_obj = update(obj)
+		math = se3_math;
 
-	function set_inertia_matrix(obj, J)
-		obj.J = J;
-	end
-
-	function apply_external_moment(obj, M)
-		obj.M = M;
-	end
-
-	function apply_external_force(obj, f)
-		obj.f = f;
-	end
-
-	function retW = get_angular_vel(obj)
-		retW = obj.W;
-	end
-
-	function update(obj)
-		%calculate current aungular acceleration from moment
-		%calculate current accelration from force
 		%calculate angular velocity by integrating angular acceleration
+		obj.W = obj.integrator(obj.W, obj.W_dot, obj.dt);
+
 		%calculate velocity by integrating acceleration
+		obj.v = obj.integrator(obj.v, obj.a, obj.dt);
+
 		%calculate rotation matrix by intergrating DCM differential equation
+		R_dot = obj.R * math.hat_map_3x3(obj.W);
+		obj.R(:, 1) = obj.integrator(obj.R(:, 1), R_dot, obj.dt);
+		obj.R(:, 2) = obj.integrator(obj.R(:, 2), R_dot, obj.dt);
+		obj.R(:, 3) = obj.integrator(obj.R(:, 3), R_dot, obj.dt);
+
 		%calculate position by integrating velocity
+		obj.x = obj.integrator(obj.x, obj.v, obj.dt);
+
+		%calculate current accelration from force
+		e3 = [0; 0; 1];
+		f = 1; %FIXME
+		mv_dot = (obj.mass * obj.g * e3) - (f * (obj.R * e3));
+		obj.a = mv_dot / obj.mass;
+
+		%calculate current aungular acceleration from moment
+		JW = obj.J * obj.W;
+		WJW = cross(obj.W, JW);
+		JW_dot = obj.M - WJW;
+
+		ret_obj = obj;
 	end
 	end
 end

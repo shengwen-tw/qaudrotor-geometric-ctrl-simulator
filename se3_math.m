@@ -22,7 +22,7 @@ classdef se3_math
 		dcm33 = cos_phi * cos_theta;
 		dcm = [dcm11 dcm12 dcm13;
 		       dcm21 dcm22 dcm23;
-		       dcm31 dcm32 dcm33;]
+		       dcm31 dcm32 dcm33;];
 	end
 
 	function vec=vee_map_3x3(obj, mat)
