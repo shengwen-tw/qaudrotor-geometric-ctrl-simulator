@@ -1,9 +1,8 @@
-%check: https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
-
 classdef se3_math
 	methods
 	function dcm = euler_to_dcm(obj, roll, pitch ,yaw)
 		%R = Rz(psi)Ry(theta)Rx(phi)
+		%read: https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
 		cos_phi = cos(double(roll));
 		cos_theta = cos(pitch);
 		cos_psi = cos(yaw);
@@ -37,6 +36,7 @@ classdef se3_math
 	end
 
 	function R_orthonormal = dcm_orthonormalize(obj, R)
+		%read "Direction Cosine Matrix IMU: Theory" for detailed explanation
 		x = [R(1, 1) R(1, 2) R(1, 3)];
 		y = [R(2, 1) R(2, 2) R(2, 3)];
 		error = dot(x, y);

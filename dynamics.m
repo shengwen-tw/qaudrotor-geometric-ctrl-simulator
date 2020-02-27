@@ -24,6 +24,7 @@ classdef dynamics
 
 	methods
 	function f_next = integrator(obj, f_now, f_dot, dt)
+		%euler method
 		f_next = [f_now(1) + (f_dot(1) * dt);
 			  f_now(2) + (f_dot(2) * dt);
 			  f_now(3) + (f_dot(3) * dt)];
@@ -39,11 +40,16 @@ classdef dynamics
 		obj.v = obj.integrator(obj.v, obj.a, obj.dt);
 
 		%calculate rotation matrix by intergrating DCM differential equation
+		%read "Direction Cosine Matrix IMU: Theory" for detailed explanation
 		R_dot = obj.R * math.hat_map_3x3(obj.W);
 		I = eye(3);
 		Wdt = [obj.W(1) * obj.dt; obj.W(2) * obj.dt; obj.W(3) * obj.dt];
 		dR = math.hat_map_3x3(Wdt) + I;
+		%according to definition of SO(3), to rotate R by dR, the correct way
+		%to do is multiplication rather than addition, since SO(3) is not closed
+		%under addition
 		obj.R = obj.R * dR;
+		%maintain the orthonomal properties of DCM
 		obj.R = math.dcm_orthonormalize(obj.R);
 		%obj.R_det = det(obj.R);
 		%disp(obj.R_det)
