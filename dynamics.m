@@ -49,8 +49,9 @@ classdef dynamics
 		%to do is multiplication rather than addition, since SO(3) is not closed
 		%under addition
 		obj.R = obj.R * dR;
-		%maintain the orthonomal properties of DCM
+		%maintain the orthonomal property of DCM
 		obj.R = math.dcm_orthonormalize(obj.R);
+		%to check the orthonormal propertiy of DCM, we can check the determinant of it
 		%obj.R_det = det(obj.R);
 		%disp(obj.R_det)
 
