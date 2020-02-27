@@ -9,7 +9,7 @@ function quadrotor_sim
 	uav_dynamics.a = [0; 0; 0];
 	uav_dynamics.v = [0; 0; 0];
 	uav_dynamics.x = [0; 0; 0];
-	uav_dynamics.W = [0; 0; 1];
+	uav_dynamics.W = [0; 0; 0];
 	uav_dynamics.W_dot = [0; 0; 0];
 	uav_dynamics.f = [0; 0; 0];
 	uav_dynamics.M = [0; 0 ;0];
