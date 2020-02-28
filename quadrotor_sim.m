@@ -32,28 +32,40 @@ function quadrotor_sim
 	eW_arr = zeros(1, ITERATION_TIMES);
 
 	Wd = [0; 0; 0];
-	kr = [5; 5; 5];
-	kw = [1; 1; 1];
+	W_dot_d = [0; 0; 0];
+	kR = [5; 5; 5];
+	kW = [1; 1; 1];
 
 	for i = 1: ITERATION_TIMES
+		%%%%%%%%%%%%%%%%%%%%%%%%%%
+		% Update System Dynamics %
+		%%%%%%%%%%%%%%%%%%%%%%%%%%
 		uav_dynamics = update(uav_dynamics);
 
-		%controller
+		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+		% Geometry Tracking Controller for Quadrotor %
+		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 		desired_roll = deg2rad(30);
 		desired_pitch = deg2rad(10);
 		desired_yaw = deg2rad(35);
 		Rd = math.euler_to_dcm(desired_roll, desired_pitch, desired_yaw);
 
-		eR = 0.5 * math.vee_map_3x3((Rd'* uav_dynamics.R - uav_dynamics.R'* Rd));
-		eW = uav_dynamics.W - uav_dynamics.R' * Rd * Wd;
+		Rt = uav_dynamics.R';
 
-		eR_arr(i) = rad2deg(eR(1));
+		%attitude errors
+		eR = 0.5 * math.vee_map_3x3((Rd'*uav_dynamics.R - Rt*Rd));
+		eW = uav_dynamics.W - Rt*Rd*Wd;
 
 		WJW = cross(uav_dynamics.W, uav_dynamics.J * uav_dynamics.W);
-		uav_dynamics.M(1) = -kr(1) * eR(1) - kw(1) * eW(1) + WJW(1);
-		uav_dynamics.M(2) = -kr(2) * eR(2) - kw(2) * eW(2) + WJW(2);
-		uav_dynamics.M(3) = -kr(3) * eR(3) - kw(3) * eW(3) + WJW(3);
+		M_feedfoward = WJW - J*(math.hat_map_3x3(uav_dynamics.W)*Rt*Rd*Wd - Rt*Rd*W_dot_d);
+		uav_dynamics.M(1) = -kR(1)*eR(1) - kW(1)*eW(1) + M_feedfoward(1);
+		uav_dynamics.M(2) = -kR(2)*eR(2) - kW(2)*eW(2) + M_feedfoward(2);
+		uav_dynamics.M(3) = -kR(3)*eR(3) - kW(3)*eW(3) + M_feedfoward(3);
 
+		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+		% Record datas for plotting %
+		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+		eR_arr(i) = rad2deg(eR(1));
 		pos_a_arr(i) = uav_dynamics.a(1);
 		pos_v_arr(i) = uav_dynamics.v(1);
 		pos_x_arr(i) = uav_dynamics.x(1);
