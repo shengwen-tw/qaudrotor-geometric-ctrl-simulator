@@ -62,8 +62,7 @@ classdef dynamics
 
 		%calculate current accelration from force
 		e3 = [0; 0; 1];
-		f = 1; %FIXME
-		mv_dot = (obj.mass * obj.g * e3) - (f * (obj.R * e3));
+		mv_dot = (obj.mass * obj.g * e3) - obj.f;
 		obj.a = mv_dot / obj.mass;
 
 		%calculate current aungular acceleration from moment

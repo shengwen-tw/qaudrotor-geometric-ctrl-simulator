@@ -30,9 +30,20 @@ function quadrotor_sim
 	prv_angle_arr = zeros(1, ITERATION_TIMES);
 	eR_arr = zeros(3, ITERATION_TIMES);
 	eW_arr = zeros(3, ITERATION_TIMES);
+	ex_arr = zeros(3, ITERATION_TIMES);
+	ev_arr = zeros(3, ITERATION_TIMES);
 
+	%controller setpoints
+	xd = [0; 0; 0];
+	x_dot_dot_d = [0; 0; 0];
+	vd = [0; 0; 0];
+	yaw_d = deg2rad(0);
 	Wd = [0; 0; 0];
 	W_dot_d = [0; 0; 0];
+
+	%controller gains
+	kx = [0; 0; 0];
+	kv = [0; 0; 0];
 	kR = [5; 5; 5];
 	kW = [1; 1; 1];
 
@@ -45,6 +56,32 @@ function quadrotor_sim
 		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 		% Geometry Tracking Controller for Quadrotor %
 		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+		%tracking erros
+		ex = uav_dynamics.x - xd;
+		ev = uav_dynamics.v - vd;
+
+		%calculate thrust for quadrotor
+		e3 = [0; 0; 1];
+		%calculate the thrust vector on inertial frame [e1; e2; e3]
+		f_n(1) = -(-kx(1)*ex(1) - kv(1)*ev(1) - uav_dynamics.mass*uav_dynamics.g*e3(1) + uav_dynamics.g*x_dot_dot_d(1));
+		f_n(2) = -(-kx(2)*ex(2) - kv(2)*ev(2) - uav_dynamics.mass*uav_dynamics.g*e3(2) + uav_dynamics.g*x_dot_dot_d(2));
+		f_n(3) = -(-kx(3)*ex(3) - kv(3)*ev(3) - uav_dynamics.mass*uav_dynamics.g*e3(3) + uav_dynamics.g*x_dot_dot_d(3));
+		f = dot(f_n, uav_dynamics.R*e3); %quadrotor thrust on body fram b3 axis
+
+		%calculate desired dcm
+		b1d = [cos(yaw_d); sin(yaw_d); 0];
+		b3d = [0; 0; 0];
+		b3d(1) = f_n(1) / norm(f_n);
+		b3d(2) = f_n(2) / norm(f_n);
+		b3d(3) = f_n(3) / norm(f_n);
+		b2d = cross(b3d, b1d);
+		b1d_proj = cross(b2d, b3d);
+		Rd = [b1d_proj b2d b3d];
+		%disp(Rd);
+		%disp(det(Rd))
+		
+		%attitude manual control input
 		desired_roll = deg2rad(30);
 		desired_pitch = deg2rad(10);
 		desired_yaw = deg2rad(35);
@@ -75,6 +112,8 @@ function quadrotor_sim
 		W_dot_arr(:, i) = rad2deg(uav_dynamics.W_dot);
 		W_arr(:, i) = rad2deg(uav_dynamics.W);
 		M_arr(:, i) = uav_dynamics.M;
+		ex_arr(:, i) = ex;
+		ev_arr(:, i) = ev;
 	end
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -118,7 +157,7 @@ function quadrotor_sim
 	figure(3);
 	subplot (3, 1, 1);
 	plot(time_arr, pos_arr(1, :));
-	title('position');
+	title('position (NED frame)');
 	xlabel('time [s]');
 	ylabel('x [m]');
 	subplot (3, 1, 2);
@@ -126,15 +165,15 @@ function quadrotor_sim
 	xlabel('time [s]');
 	ylabel('y [m]');
 	subplot (3, 1, 3);
-	plot(time_arr, pos_arr(3, :));
+	plot(time_arr, -pos_arr(3, :));
 	xlabel('time [s]');
-	ylabel('z [m]');
+	ylabel('-z [m]');
 
 	%4. velocity
 	figure(4);
 	subplot (3, 1, 1);
 	plot(time_arr, vel_arr.g(1, :));
-	title('velocity');
+	title('velocity (NED frame)');
 	xlabel('time [s]');
 	ylabel('x [m/s]');
 	subplot (3, 1, 2);
@@ -142,15 +181,15 @@ function quadrotor_sim
 	xlabel('time [s]');
 	ylabel('y [m/s]');
 	subplot (3, 1, 3);
-	plot(time_arr, vel_arr.g(3, :));
+	plot(time_arr, -vel_arr.g(3, :));
 	xlabel('time [s]');
-	ylabel('z [m/s]');
+	ylabel('-z [m/s]');
 
 	%5. acceleration
 	figure(5);
 	subplot (3, 1, 1);
 	plot(time_arr, accel_arr(1, :));
-	title('acceleration');
+	title('acceleration (NED frame)');
 	xlabel('time [s]');
 	ylabel('x [m/s^2]');
 	subplot (3, 1, 2);
@@ -158,9 +197,41 @@ function quadrotor_sim
 	xlabel('time [s]');
 	ylabel('y [m/s^2]');
 	subplot (3, 1, 3);
-	plot(time_arr, accel_arr(3, :));
+	plot(time_arr, -accel_arr(3, :));
 	xlabel('time [s]');
-	ylabel('z [m/s^2]');
+	ylabel('-z [m/s^2]');
+
+	%6. position error
+	figure(6);
+	subplot (3, 1, 1);
+	plot(time_arr, ex_arr(1, :));
+	title('position error');
+	xlabel('time [s]');
+	ylabel('x [m]');
+	subplot (3, 1, 2);
+	plot(time_arr, ex_arr(2, :));
+	xlabel('time [s]');
+	ylabel('y [m]');
+	subplot (3, 1, 3);
+	plot(time_arr, ex_arr(3, :));
+	xlabel('time [s]');
+	ylabel('z [m]');
+
+	%7. velocity error
+	figure(7);
+	subplot (3, 1, 1);
+	plot(time_arr, ev_arr(1, :));
+	title('velocity error');
+	xlabel('time [s]');
+	ylabel('x [m/s]');
+	subplot (3, 1, 2);
+	plot(time_arr, ev_arr(2, :));
+	xlabel('time [s]');
+	ylabel('y [m/s]');
+	subplot (3, 1, 3);
+	plot(time_arr, ev_arr(3, :));
+	xlabel('time [s]');
+	ylabel('z [m/s]');
 
 	disp("press any button to leave");
 	pause;
