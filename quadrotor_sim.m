@@ -28,10 +28,32 @@ function quadrotor_sim
 	W_arr = zeros(1, ITERATION_TIMES);
 	M_arr = zeros(1, ITERATION_TIMES);
 	prv_angle_arr = zeros(1, ITERATION_TIMES);
+	eR_arr = zeros(1, ITERATION_TIMES);
+	eW_arr = zeros(1, ITERATION_TIMES);
+
+	Wd = [0; 0; 0];
+	kr = [1; 1; 1];
+	kw = [1; 1; 1];
 
 	for i = 1: ITERATION_TIMES
 		uav_dynamics = update(uav_dynamics);
-		
+
+		%controller
+		desired_roll = deg2rad(30);
+		desired_pitch = deg2rad(10);
+		desired_yaw = deg2rad(35);
+		Rd = math.euler_to_dcm(desired_roll, desired_pitch, desired_yaw);
+
+		eR = 0.5 * math.vee_map_3x3((Rd'* uav_dynamics.R - uav_dynamics.R'* Rd));
+		eW = uav_dynamics.W - uav_dynamics.R' * Rd * Wd;
+
+		eR_arr(i) = rad2deg(eR(1));
+
+		WJW = cross(uav_dynamics.W, uav_dynamics.J * uav_dynamics.W);
+		uav_dynamics.M(1) = -kr(1) * eR(1) - kw(1) * eW(1) + WJW(1);
+		uav_dynamics.M(2) = -kr(2) * eR(2) - kw(2) * eW(2) + WJW(2);
+		uav_dynamics.M(3) = -kr(3) * eR(3) - kw(3) * eW(3) + WJW(3);
+
 		pos_a_arr(i) = uav_dynamics.a(1);
 		pos_v_arr(i) = uav_dynamics.v(1);
 		pos_x_arr(i) = uav_dynamics.x(1);
@@ -43,7 +65,7 @@ function quadrotor_sim
 	end
 
 	figure(1);
-	plot(time_arr, M_arr);
+	plot(time_arr, eR_arr);
 	disp("press any button to leave");
 	pause;
 end
