@@ -19,6 +19,36 @@ function quadrotor_sim
 			  0 0.01466 0;
 			  0 0 0.02848];
 
+	%controller setpoints
+	x_dot_dot_d = [0; 0; 0];
+	yaw_d = deg2rad(0);
+	Wd = [0; 0; 0];
+	W_dot_d = [0; 0; 0];
+
+	%controller gains
+	kx = [25; 25; 25];
+	kv = [8; 8; 8];
+	kR = [6; 6; 6];
+	kW = [2; 2; 2];
+	
+	xd = zeros(3, ITERATION_TIMES);
+	vd = zeros(3, ITERATION_TIMES);
+
+	%%%%%%%%%%%%%%%%%%%%%
+	%   path planning   %
+	%%%%%%%%%%%%%%%%%%%%%
+	radius = 3; %[m]
+	rate = pi * 0.5;
+	for i = 1: ITERATION_TIMES
+		xd(1, i) = radius * cos(rate * uav_dynamics.dt * i);
+		xd(2, i) = radius * sin(rate * uav_dynamics.dt * i);
+		xd(3, i) = 3;
+
+		vd(1, i) = radius * -sin(rate * uav_dynamics.dt * i);
+		vd(2, i) = radius * cos(rate * uav_dynamics.dt * i);
+		vd(3, i) = 0;
+	end
+
 	%plot datas
 	time_arr = zeros(1, ITERATION_TIMES);
 	accel_arr = zeros(3, ITERATION_TIMES);
@@ -34,20 +64,6 @@ function quadrotor_sim
 	ex_arr = zeros(3, ITERATION_TIMES);
 	ev_arr = zeros(3, ITERATION_TIMES);
 
-	%controller setpoints
-	xd = [1; 2; 3];
-	x_dot_dot_d = [0; 0; 0];
-	vd = [0; 0; 0];
-	yaw_d = deg2rad(0);
-	Wd = [0; 0; 0];
-	W_dot_d = [0; 0; 0];
-
-	%controller gains
-	kx = [2; 2; 2];
-	kv = [1.7; 1.7; 1.7];
-	kR = [5; 5; 5];
-	kW = [1; 1; 1];
-
 	for i = 1: ITERATION_TIMES
 		%%%%%%%%%%%%%%%%%%%%%%%%%%
 		% Update System Dynamics %
@@ -59,8 +75,12 @@ function quadrotor_sim
 		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 		%tracking erros
-		ex = uav_dynamics.x - xd;
-		ev = uav_dynamics.v - vd;
+		ex(1) = uav_dynamics.x(1) - xd(1, i);
+		ex(2) = uav_dynamics.x(2) - xd(2, i);
+		ex(3) = uav_dynamics.x(3) - xd(3, i);
+		ev(1) = uav_dynamics.v(1) - vd(1, i);
+		ev(2) = uav_dynamics.v(2) - vd(2, i);
+		ev(3) = uav_dynamics.v(3) - vd(3, i);
 
 		%calculate thrust for quadrotor
 		e3 = [0; 0; 1];
@@ -108,7 +128,8 @@ function quadrotor_sim
 
 		%control output: force
 		f_b = [0; 0; f];
-		uav_dynamics.f = uav_dynamics.R * f_b;
+		%uav_dynamics.f = uav_dynamics.R * f_b;
+		uav_dynamics.f = f_n;
 
 		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 		% Record datas for plotting %
@@ -250,6 +271,22 @@ function quadrotor_sim
 	plot(time_arr, ev_arr(3, :));
 	xlabel('time [s]');
 	ylabel('z [m/s]');
+
+	%8. desired position
+	figure(9);
+	subplot (3, 1, 1);
+	plot(time_arr, xd(1, :));
+	title('desired position');
+	xlabel('time [s]');
+	ylabel('x [m]');
+	subplot (3, 1, 2);
+	plot(time_arr, xd(2, :));
+	xlabel('time [s]');
+	ylabel('y [m]');
+	subplot (3, 1, 3);
+	plot(time_arr, xd(3, :));
+	xlabel('time [s]');
+	ylabel('z [m]');
 
 	disp("press any button to leave");
 	pause;
