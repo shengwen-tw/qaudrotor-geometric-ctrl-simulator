@@ -32,7 +32,7 @@ function quadrotor_sim
 	eW_arr = zeros(1, ITERATION_TIMES);
 
 	Wd = [0; 0; 0];
-	kr = [1; 1; 1];
+	kr = [5; 5; 5];
 	kw = [1; 1; 1];
 
 	for i = 1: ITERATION_TIMES
