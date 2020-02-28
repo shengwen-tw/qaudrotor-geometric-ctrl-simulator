@@ -21,15 +21,15 @@ function quadrotor_sim
 
 	%plot datas
 	time_arr = zeros(1, ITERATION_TIMES);
-	pos_a_arr = zeros(1, ITERATION_TIMES);
-	pos_v_arr = zeros(1, ITERATION_TIMES);
-	pos_x_arr = zeros(1, ITERATION_TIMES);
-	W_dot_arr = zeros(1, ITERATION_TIMES);
-	W_arr = zeros(1, ITERATION_TIMES);
-	M_arr = zeros(1, ITERATION_TIMES);
+	pos_a_arr = zeros(3, ITERATION_TIMES);
+	pos_v_arr = zeros(3, ITERATION_TIMES);
+	pos_x_arr = zeros(3, ITERATION_TIMES);
+	W_dot_arr = zeros(3, ITERATION_TIMES);
+	W_arr = zeros(3, ITERATION_TIMES);
+	M_arr = zeros(3, ITERATION_TIMES);
 	prv_angle_arr = zeros(1, ITERATION_TIMES);
-	eR_arr = zeros(1, ITERATION_TIMES);
-	eW_arr = zeros(1, ITERATION_TIMES);
+	eR_arr = zeros(3, ITERATION_TIMES);
+	eW_arr = zeros(3, ITERATION_TIMES);
 
 	Wd = [0; 0; 0];
 	W_dot_d = [0; 0; 0];
@@ -65,19 +65,20 @@ function quadrotor_sim
 		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 		% Record datas for plotting %
 		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-		eR_arr(i) = rad2deg(eR(1));
-		pos_a_arr(i) = uav_dynamics.a(1);
-		pos_v_arr(i) = uav_dynamics.v(1);
-		pos_x_arr(i) = uav_dynamics.x(1);
-		W_dot_arr(i) = rad2deg(uav_dynamics.W_dot(1));
-		W_arr(i) = rad2deg(uav_dynamics.W(1));
-		M_arr(i) = uav_dynamics.M(1);
-		prv_angle_arr(i) = rad2deg(uav_dynamics.prv_angle);
 		time_arr(i) = i * uav_dynamics.dt;
+		time_arr(i) = i * uav_dynamics.dt;
+		eR_arr(:, i) = rad2deg(eR);
+		eW_arr(:, i) = rad2deg(eW);
+		pos_a_arr(:, i) = uav_dynamics.a;
+		pos_v_arr(:, i) = uav_dynamics.v;
+		pos_x_arr(:, i) = uav_dynamics.x;
+		W_dot_arr(:, i) = rad2deg(uav_dynamics.W_dot);
+		W_arr(:, i) = rad2deg(uav_dynamics.W);
+		M_arr(:, i) = uav_dynamics.M;
 	end
 
 	figure(1);
-	plot(time_arr, eR_arr);
+	plot(time_arr, eR_arr(1, :));
 	disp("press any button to leave");
 	pause;
 end
