@@ -35,7 +35,7 @@ function quadrotor_sim
 	ev_arr = zeros(3, ITERATION_TIMES);
 
 	%controller setpoints
-	xd = [0; 0; 0];
+	xd = [1; 2; 3];
 	x_dot_dot_d = [0; 0; 0];
 	vd = [0; 0; 0];
 	yaw_d = deg2rad(0);
@@ -43,8 +43,8 @@ function quadrotor_sim
 	W_dot_d = [0; 0; 0];
 
 	%controller gains
-	kx = [0; 0; 0];
-	kv = [0; 0; 0];
+	kx = [2; 2; 2];
+	kv = [1.7; 1.7; 1.7];
 	kR = [5; 5; 5];
 	kW = [1; 1; 1];
 
@@ -65,10 +65,13 @@ function quadrotor_sim
 		%calculate thrust for quadrotor
 		e3 = [0; 0; 1];
 		%calculate the thrust vector on inertial frame [e1; e2; e3]
+		f_n = [0; 0; 0];
 		f_n(1) = -(-kx(1)*ex(1) - kv(1)*ev(1) - uav_dynamics.mass*uav_dynamics.g*e3(1) + uav_dynamics.g*x_dot_dot_d(1));
 		f_n(2) = -(-kx(2)*ex(2) - kv(2)*ev(2) - uav_dynamics.mass*uav_dynamics.g*e3(2) + uav_dynamics.g*x_dot_dot_d(2));
 		f_n(3) = -(-kx(3)*ex(3) - kv(3)*ev(3) - uav_dynamics.mass*uav_dynamics.g*e3(3) + uav_dynamics.g*x_dot_dot_d(3));
 		f = dot(f_n, uav_dynamics.R*e3); %quadrotor thrust on body fram b3 axis
+
+		uav_dynamics.f = f_n;
 
 		%calculate desired dcm
 		b1d = [cos(yaw_d); sin(yaw_d); 0];
@@ -83,10 +86,10 @@ function quadrotor_sim
 		%disp(det(Rd))
 		
 		%attitude manual control input
-		desired_roll = deg2rad(30);
-		desired_pitch = deg2rad(10);
-		desired_yaw = deg2rad(35);
-		Rd = math.euler_to_dcm(desired_roll, desired_pitch, desired_yaw);
+		%desired_roll = deg2rad(30);
+		%desired_pitch = deg2rad(10);
+		%desired_yaw = deg2rad(35);
+		%Rd = math.euler_to_dcm(desired_roll, desired_pitch, desired_yaw);
 
 		Rt = uav_dynamics.R';
 		Rdt = Rd';
