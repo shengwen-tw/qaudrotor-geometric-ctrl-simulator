@@ -26,8 +26,8 @@ function quadrotor_sim
 	W_dot_d = [0; 0; 0];
 
 	%controller gains
-	kx = [25; 25; 25];
-	kv = [8; 8; 8];
+	kx = [60; 60; 60];
+	kv = [35; 35; 35];
 	kR = [6; 6; 6];
 	kW = [2; 2; 2];
 	
@@ -42,7 +42,7 @@ function quadrotor_sim
 	for i = 1: ITERATION_TIMES
 		xd(1, i) = radius * cos(rate * uav_dynamics.dt * i);
 		xd(2, i) = radius * sin(rate * uav_dynamics.dt * i);
-		xd(3, i) = 3;
+		xd(3, i) = -3;
 
 		vd(1, i) = radius * -sin(rate * uav_dynamics.dt * i);
 		vd(2, i) = radius * cos(rate * uav_dynamics.dt * i);
@@ -195,32 +195,32 @@ function quadrotor_sim
 	%4. position
 	figure(4);
 	subplot (3, 1, 1);
-	plot(time_arr, pos_arr(1, :));
+	plot(time_arr, pos_arr(1, :), time_arr, xd(1, :));
 	title('position (NED frame)');
 	xlabel('time [s]');
 	ylabel('x [m]');
 	subplot (3, 1, 2);
-	plot(time_arr, pos_arr(2, :));
+	plot(time_arr, pos_arr(2, :), time_arr, xd(2, :));
 	xlabel('time [s]');
 	ylabel('y [m]');
 	subplot (3, 1, 3);
-	plot(time_arr, -pos_arr(3, :));
+	plot(time_arr, -pos_arr(3, :), time_arr, -xd(3, :));
 	xlabel('time [s]');
 	ylabel('-z [m]');
 
 	%5. velocity
 	figure(5);
 	subplot (3, 1, 1);
-	plot(time_arr, vel_arr.g(1, :));
+	plot(time_arr, vel_arr.g(1, :), time_arr, vd(1, :));
 	title('velocity (NED frame)');
 	xlabel('time [s]');
 	ylabel('x [m/s]');
 	subplot (3, 1, 2);
-	plot(time_arr, vel_arr.g(2, :));
+	plot(time_arr, vel_arr.g(2, :), time_arr, vd(2, :));
 	xlabel('time [s]');
 	ylabel('y [m/s]');
 	subplot (3, 1, 3);
-	plot(time_arr, -vel_arr.g(3, :));
+	plot(time_arr, -vel_arr.g(3, :), time_arr, -vd(3, :));
 	xlabel('time [s]');
 	ylabel('-z [m/s]');
 
@@ -271,22 +271,6 @@ function quadrotor_sim
 	plot(time_arr, ev_arr(3, :));
 	xlabel('time [s]');
 	ylabel('z [m/s]');
-
-	%8. desired position
-	figure(9);
-	subplot (3, 1, 1);
-	plot(time_arr, xd(1, :));
-	title('desired position');
-	xlabel('time [s]');
-	ylabel('x [m]');
-	subplot (3, 1, 2);
-	plot(time_arr, xd(2, :));
-	xlabel('time [s]');
-	ylabel('y [m]');
-	subplot (3, 1, 3);
-	plot(time_arr, xd(3, :));
-	xlabel('time [s]');
-	ylabel('z [m]');
 
 	disp("press any button to leave");
 	pause;
