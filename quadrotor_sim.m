@@ -28,6 +28,7 @@ function quadrotor_sim
 	W_arr = zeros(3, ITERATION_TIMES);
 	M_arr = zeros(3, ITERATION_TIMES);
 	prv_angle_arr = zeros(1, ITERATION_TIMES);
+	eR_prv_arr = zeros(3, ITERATION_TIMES);
 	eR_arr = zeros(3, ITERATION_TIMES);
 	eW_arr = zeros(3, ITERATION_TIMES);
 	ex_arr = zeros(3, ITERATION_TIMES);
@@ -88,6 +89,10 @@ function quadrotor_sim
 		Rd = math.euler_to_dcm(desired_roll, desired_pitch, desired_yaw);
 
 		Rt = uav_dynamics.R';
+		Rdt = Rd';
+
+		%attitude errors expressed in principle rotation angle
+		eR_prv = 0.5 * trace(I - Rdt*uav_dynamics.R);
 
 		%attitude errors
 		eR = 0.5 * math.vee_map_3x3((Rd'*uav_dynamics.R - Rt*Rd));
@@ -104,6 +109,7 @@ function quadrotor_sim
 		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 		time_arr(i) = i * uav_dynamics.dt;
 		time_arr(i) = i * uav_dynamics.dt;
+		eR_prv_arr(:, i) = rad2deg(eR_prv);
 		eR_arr(:, i) = rad2deg(eR);
 		eW_arr(:, i) = rad2deg(eW);
 		accel_arr(:, i) = uav_dynamics.a;
@@ -120,9 +126,15 @@ function quadrotor_sim
 	%          Plot          %
 	%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-	%1.attitude error  
+	%1.principle rotation error angle
 	figure(1);
-	title('eR');
+	plot(time_arr, eR_prv_arr(1, :));
+	title('principle rotation error angle');
+	xlabel('time [s]');
+	ylabel('x [deg]');
+
+	%2.attitude error  
+	figure(2);
 	subplot (3, 1, 1);
 	plot(time_arr, eR_arr(1, :));
 	title('eR');
@@ -137,8 +149,8 @@ function quadrotor_sim
 	xlabel('time [s]');
 	ylabel('z [deg]');
 
-	%2. attitude rate error
-	figure(2);
+	%3. attitude rate error
+	figure(3);
 	subplot (3, 1, 1);
 	plot(time_arr, eW_arr(1, :));
 	title('eW');
@@ -153,8 +165,8 @@ function quadrotor_sim
 	xlabel('time [s]');
 	ylabel('z [deg/s]');
 
-	%3. position
-	figure(3);
+	%4. position
+	figure(4);
 	subplot (3, 1, 1);
 	plot(time_arr, pos_arr(1, :));
 	title('position (NED frame)');
@@ -169,8 +181,8 @@ function quadrotor_sim
 	xlabel('time [s]');
 	ylabel('-z [m]');
 
-	%4. velocity
-	figure(4);
+	%5. velocity
+	figure(5);
 	subplot (3, 1, 1);
 	plot(time_arr, vel_arr.g(1, :));
 	title('velocity (NED frame)');
@@ -185,8 +197,8 @@ function quadrotor_sim
 	xlabel('time [s]');
 	ylabel('-z [m/s]');
 
-	%5. acceleration
-	figure(5);
+	%6. acceleration
+	figure(6);
 	subplot (3, 1, 1);
 	plot(time_arr, accel_arr(1, :));
 	title('acceleration (NED frame)');
@@ -201,8 +213,8 @@ function quadrotor_sim
 	xlabel('time [s]');
 	ylabel('-z [m/s^2]');
 
-	%6. position error
-	figure(6);
+	%7. position error
+	figure(7);
 	subplot (3, 1, 1);
 	plot(time_arr, ex_arr(1, :));
 	title('position error');
@@ -217,8 +229,8 @@ function quadrotor_sim
 	xlabel('time [s]');
 	ylabel('z [m]');
 
-	%7. velocity error
-	figure(7);
+	%8. velocity error
+	figure(8);
 	subplot (3, 1, 1);
 	plot(time_arr, ev_arr(1, :));
 	title('velocity error');
