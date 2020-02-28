@@ -69,8 +69,7 @@ classdef dynamics
 		%calculate current aungular acceleration from moment
 		JW = obj.J * obj.W;
 		WJW = cross(obj.W, JW);
-		JW_dot = obj.M - WJW;
-		obj.W_dot = inv(obj.J) * (WJW - obj.M);
+		obj.W_dot = inv(obj.J) * (obj.M - WJW);
 
 		ret_obj = obj;
 	end
