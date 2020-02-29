@@ -22,6 +22,8 @@ function rigidbody_visualize(plot_size, rigidbody_pos, rigidbody_R, iterate_time
 	p31 = i31; p32 = i32; p33 = i33;
 	p41 = i41; p42 = i42; p43 = i43;
 
+	figure('Name', 'simulation visualization (NED)')
+
 	disp('Start timing the elsapsed time of rigibody visualization:');
 	tic();
         for i = 1: skip_cnt: iterate_times
@@ -44,7 +46,10 @@ function rigidbody_visualize(plot_size, rigidbody_pos, rigidbody_R, iterate_time
 		view(3)
 		grid on;
 		pause(sleep_time);
-		clf;
+
+		if (i + skip_cnt < iterate_times)
+			clf;
+		end
 	end
 	toc();
 end

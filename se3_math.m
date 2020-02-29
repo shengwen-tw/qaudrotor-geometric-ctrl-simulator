@@ -23,6 +23,12 @@ classdef se3_math
 		       dcm31 dcm32 dcm33;];
 	end
 
+	function euler = dcm_to_euler(obj, R)
+		euler = [roll = atan2(R(3, 2), R(3, 3));
+			 pitch = asin(-R(3, 1));
+			 yaw = atan2(R(2, 1), R(1, 1))];
+	end
+
 	function vec = vee_map_3x3(obj, mat)
 		vec=[mat(3, 2);
 		     mat(1, 3);
