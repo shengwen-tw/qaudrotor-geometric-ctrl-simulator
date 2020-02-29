@@ -48,7 +48,7 @@ function quadrotor_sim
 	% cirular motion
 	radius = 3;        %[m]
 	circum_rate = 0.5; %[hz], times of finished a circular trajectory per second
-	yaw_rate = 0.25;   %[hz], times of full rotation around z axis per second
+	yaw_rate = 0.01;   %[hz], times of full rotation around z axis per second
 	for i = 1: ITERATION_TIMES
 		if i == 1
 			yaw_d(1) = 0;
