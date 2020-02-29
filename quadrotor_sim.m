@@ -50,7 +50,14 @@ function quadrotor_sim
 	circum_rate = 0.5; %[hz], times of finished a circular trajectory per second
 	yaw_rate = 0.25;   %[hz], times of full rotation around z axis per second
 	for i = 1: ITERATION_TIMES
-		yaw_d(i) = yaw_rate * uav_dynamics.dt * i * 2 * pi;
+		if i == 1
+			yaw_d(1) = 0;
+		else
+			yaw_d(i) = yaw_d(i - 1) + (yaw_rate * uav_dynamics.dt * 2 * pi);
+		end
+		if yaw_d(i) > pi %bound yaw angle between +-180 degree
+			yaw_d(i) -= 2 * pi;
+		end
 
 		xd(1, i) = radius * cos(circum_rate * uav_dynamics.dt * i * pi);
 		xd(2, i) = radius * sin(circum_rate * uav_dynamics.dt * i * pi);
