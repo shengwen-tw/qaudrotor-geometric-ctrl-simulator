@@ -35,8 +35,8 @@ function quadrotor_sim
 	%controller setpoints	
 	xd = zeros(3, ITERATION_TIMES);
 	vd = zeros(3, ITERATION_TIMES);
+	a_d = [0; 0; 0];
 	yaw_d = zeros(1, ITERATION_TIMES);
-	x_dot_dot_d = [0; 0; 0];
 	Wd = [0; 0; 0];
 	W_dot_d = [0; 0; 0];
 
@@ -108,9 +108,9 @@ function quadrotor_sim
 		e3 = [0; 0; 1];
 		%calculate the thrust vector on inertial frame [e1; e2; e3]
 		f_n = [0; 0; 0];
-		f_n(1) = -(-kx(1)*ex(1) - kv(1)*ev(1) - uav_dynamics.mass*uav_dynamics.g*e3(1) + uav_dynamics.g*x_dot_dot_d(1));
-		f_n(2) = -(-kx(2)*ex(2) - kv(2)*ev(2) - uav_dynamics.mass*uav_dynamics.g*e3(2) + uav_dynamics.g*x_dot_dot_d(2));
-		f_n(3) = -(-kx(3)*ex(3) - kv(3)*ev(3) - uav_dynamics.mass*uav_dynamics.g*e3(3) + uav_dynamics.g*x_dot_dot_d(3));
+		f_n(1) = -(-kx(1)*ex(1) - kv(1)*ev(1) - uav_dynamics.mass*uav_dynamics.g*e3(1) + uav_dynamics.mass*a_d(1));
+		f_n(2) = -(-kx(2)*ex(2) - kv(2)*ev(2) - uav_dynamics.mass*uav_dynamics.g*e3(2) + uav_dynamics.mass*a_d(2));
+		f_n(3) = -(-kx(3)*ex(3) - kv(3)*ev(3) - uav_dynamics.mass*uav_dynamics.g*e3(3) + uav_dynamics.mass*a_d(3));
 		f = dot(f_n, uav_dynamics.R*e3); %quadrotor thrust on body frame b3 axis
 
 		%calculate desired dcm
