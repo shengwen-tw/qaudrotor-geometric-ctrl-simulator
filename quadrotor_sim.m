@@ -55,7 +55,7 @@ function quadrotor_sim
 			yaw_d(i) = yaw_d(i - 1) + (yaw_rate * uav_dynamics.dt * 2 * pi);
 		end
 		if yaw_d(i) > pi %bound yaw angle between +-180 degree
-			yaw_d(i) -= 2 * pi;
+			yaw_d(i) = yaw_d(i) - (2 * pi);
 		end
 
 		%plan position
@@ -144,7 +144,7 @@ function quadrotor_sim
 
 		%control output: moment
 		WJW = cross(uav_dynamics.W, uav_dynamics.J * uav_dynamics.W);
-		M_feedfoward = WJW - J*(math.hat_map_3x3(uav_dynamics.W)*Rt*Rd*Wd - Rt*Rd*W_dot_d);
+		M_feedfoward = WJW - uav_dynamics.J*(math.hat_map_3x3(uav_dynamics.W)*Rt*Rd*Wd - Rt*Rd*W_dot_d);
 		uav_dynamics.M(1) = -kR(1)*eR(1) - kW(1)*eW(1) + M_feedfoward(1);
 		uav_dynamics.M(2) = -kR(2)*eR(2) - kW(2)*eW(2) + M_feedfoward(2);
 		uav_dynamics.M(3) = -kR(3)*eR(3) - kW(3)*eW(3) + M_feedfoward(3);
