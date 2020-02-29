@@ -1,11 +1,11 @@
 function rigidbody_visualize
-	iterate_times = 100;
-	dt = 0.001;
+	iterate_times = 10;
+	sleep_time = 0.1; %the timing is not precise due to the matlab/octave, need to tune this value
 
 	rigidbody_pos = [0; 0; 0];
-	rigidbody_R = [1; 0; 0;
-		       0; 1; 0;
-		       0; 0; 1;]
+	rigidbody_R = [1 0 0;
+		       0 1 0;
+		       0 0 1;];
 
 	%create 3d space
 	space_len = 5; %[m]
@@ -24,15 +24,23 @@ function rigidbody_visualize
 	p31 = i31; p32 = i32; p33 = i33;
 	p41 = i41; p42 = i42; p43 = i43;
 
+	time_elapsed = 0
+	cnt = 0
+	%tic();
         for i = 1: iterate_times
 		axes('XLim',[-space_len space_len],'YLim',[-space_len space_len],'ZLim',[-space_len space_len]);
 
-		rigidbody_pos = [0; 0; 0.1 * i];
+		%test data
+		angle = deg2rad(35);
+		rigidbody_R = [cos(angle)  0  sin(angle);
+				 0         1       0;
+			      -sin(angle)  0  cos(angle)];
+		rigidbody_pos = [0; 0; space_len * i / iterate_times];
 
-		[p11, p12, p13] = transform(i11, i12, i13, rigidbody_pos, rigidbody_R);
-		[p21, p22, p23] = transform(i21, i22, i23, rigidbody_pos, rigidbody_R);
-		[p31, p32, p33] = transform(i31, i32, i33, rigidbody_pos, rigidbody_R);
-		[p41, p42, p43] = transform(i41, i42, i43, rigidbody_pos, rigidbody_R);
+		[p11, p12, p13] = cylinder_transform(i11, i12, i13, rigidbody_pos, rigidbody_R);
+		[p21, p22, p23] = cylinder_transform(i21, i22, i23, rigidbody_pos, rigidbody_R);
+		[p31, p32, p33] = cylinder_transform(i31, i32, i33, rigidbody_pos, rigidbody_R);
+		[p41, p42, p43] = cylinder_transform(i41, i42, i43, rigidbody_pos, rigidbody_R);
 
 		surface(p11, p12, p13, 'FaceColor', 'red');
 		surface(p21, p22, p23, 'FaceColor', 'blue');
@@ -42,13 +50,23 @@ function rigidbody_visualize
 		%display
 		view(3)
 		grid on;
-		pause(0.01);
+		pause(sleep_time);
 		clf;
 	end
+	%toc();
 end
 
-function [ret_p1, ret_p2, ret_p3] = transform(p1, p2, p3, pos, R)
-	ret_p1 = p1 + pos(1);
-	ret_p2 = p2 + pos(2);
-	ret_p3 = p3 + pos(3);
+function [ret_px, ret_py ret_pz] = cylinder_transform(px, py, pz, pos, R)
+	ring1_old = [px(1,:)', py(1,:)', pz(1,:)'];
+	ring2_old = [px(2,:)', py(2,:)', pz(2,:)'];
+	ring1_rotated = ring1_old * R;
+	ring2_rotated = ring2_old * R;
+
+	rotated_x = [ring1_rotated(:,1), ring2_rotated(:,1)];
+	rotated_y = [ring1_rotated(:,2), ring2_rotated(:,2)];
+	rotated_z = [ring1_rotated(:,3), ring2_rotated(:,3)];
+
+	ret_px = rotated_x + pos(1);
+	ret_py = rotated_y + pos(2);
+	ret_pz = rotated_z + pos(3);
 end
