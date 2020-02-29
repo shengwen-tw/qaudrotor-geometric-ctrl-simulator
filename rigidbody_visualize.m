@@ -1,12 +1,10 @@
-function rigidbody_visualize
-	iterate_times = 10;
-	sleep_time = 0.1; %the timing is not precise due to the matlab/octave, need to tune this value
-
-	rigidbody_pos = [0; 0; 0];
-	rigidbody_R = [1 0 0;
-		       0 1 0;
-		       0 0 1;];
-
+%plot_size: size of the 3d space to plot, i.e., [size_x; size_y; size_z]
+%rigidbody_pos: array of rigidbody's position went before
+%rigidbody_R: array of rigidbody's attitude (DCM) tilted before
+%iteration_times: total count of the rigidbodys pose
+%sleep_time: the time to sleep after every iteration of visualization
+%skip_cnt: skip count of the visualization since it is too slow
+function rigidbody_visualize(plot_size, rigidbody_pos, rigidbody_R, iterate_times, sleep_time, skip_cnt)
 	%create 3d space
 	space_len = 5; %[m]
 
@@ -24,23 +22,18 @@ function rigidbody_visualize
 	p31 = i31; p32 = i32; p33 = i33;
 	p41 = i41; p42 = i42; p43 = i43;
 
-	time_elapsed = 0
-	cnt = 0
-	%tic();
-        for i = 1: iterate_times
-		axes('XLim',[-space_len space_len],'YLim',[-space_len space_len],'ZLim',[-space_len space_len]);
+	disp('Start timing the elsapsed time of rigibody visualization:');
+	tic();
+        for i = 1: skip_cnt: iterate_times
+		sx = plot_size(1);
+		sy = plot_size(2);
+		sz = plot_size(3);
+		axes('XLim',[-sx sx],'YLim',[-sy sy],'ZLim',[-sz sz]);
 
-		%test data
-		angle = deg2rad(35);
-		rigidbody_R = [cos(angle)  0  sin(angle);
-				 0         1       0;
-			      -sin(angle)  0  cos(angle)];
-		rigidbody_pos = [0; 0; space_len * i / iterate_times];
-
-		[p11, p12, p13] = cylinder_transform(i11, i12, i13, rigidbody_pos, rigidbody_R);
-		[p21, p22, p23] = cylinder_transform(i21, i22, i23, rigidbody_pos, rigidbody_R);
-		[p31, p32, p33] = cylinder_transform(i31, i32, i33, rigidbody_pos, rigidbody_R);
-		[p41, p42, p43] = cylinder_transform(i41, i42, i43, rigidbody_pos, rigidbody_R);
+		[p11, p12, p13] = cylinder_transform(i11, i12, i13, rigidbody_pos(:, i), rigidbody_R(:, :, i));
+		[p21, p22, p23] = cylinder_transform(i21, i22, i23, rigidbody_pos(:, i), rigidbody_R(:, :, i));
+		[p31, p32, p33] = cylinder_transform(i31, i32, i33, rigidbody_pos(:, i), rigidbody_R(:, :, i));
+		[p41, p42, p43] = cylinder_transform(i41, i42, i43, rigidbody_pos(:, i), rigidbody_R(:, :, i));
 
 		surface(p11, p12, p13, 'FaceColor', 'red');
 		surface(p21, p22, p23, 'FaceColor', 'blue');
@@ -53,7 +46,7 @@ function rigidbody_visualize
 		pause(sleep_time);
 		clf;
 	end
-	%toc();
+	toc();
 end
 
 function [ret_px, ret_py ret_pz] = cylinder_transform(px, py, pz, pos, R)
@@ -68,5 +61,5 @@ function [ret_px, ret_py ret_pz] = cylinder_transform(px, py, pz, pos, R)
 
 	ret_px = rotated_x + pos(1);
 	ret_py = rotated_y + pos(2);
-	ret_pz = rotated_z + pos(3);
+	ret_pz = rotated_z - pos(3); %input z is in NED frame, convert to sea level height
 end

@@ -53,6 +53,7 @@ function quadrotor_sim
 	time_arr = zeros(1, ITERATION_TIMES);
 	accel_arr = zeros(3, ITERATION_TIMES);
 	vel_arr.g = zeros(3, ITERATION_TIMES);
+	R_arr = zeros(3, 3, ITERATION_TIMES);
 	pos_arr = zeros(3, ITERATION_TIMES);
 	W_dot_arr = zeros(3, ITERATION_TIMES);
 	W_arr = zeros(3, ITERATION_TIMES);
@@ -142,12 +143,15 @@ function quadrotor_sim
 		accel_arr(:, i) = uav_dynamics.a;
 		vel_arr.g(:, i) = uav_dynamics.v;
 		pos_arr(:, i) = uav_dynamics.x;
+		R_arr(:, :, i) = uav_dynamics.R;
 		W_dot_arr(:, i) = rad2deg(uav_dynamics.W_dot);
 		W_arr(:, i) = rad2deg(uav_dynamics.W);
 		M_arr(:, i) = uav_dynamics.M;
 		ex_arr(:, i) = ex;
 		ev_arr(:, i) = ev;
 	end
+
+	rigidbody_visualize([5; 5; 5], pos_arr, R_arr, ITERATION_TIMES, uav_dynamics.dt, 20);
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%
 	%          Plot          %
@@ -272,6 +276,6 @@ function quadrotor_sim
 	xlabel('time [s]');
 	ylabel('z [m/s]');
 
-	disp("press any button to leave");
+	disp("Press any key to leave");
 	pause;
 end
