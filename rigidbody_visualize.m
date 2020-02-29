@@ -9,18 +9,27 @@ function rigidbody_visualize(plot_size, rigidbody_pos, rigidbody_R, iterate_time
 	space_len = 5; %[m]
 
 	%define shape of quadrotor
-	[x y z] = cylinder([0.2 0.2]);
+	[x1 y1 z1] = cylinder([0.2 0.2]);
+	[x2, y2, z2] = cylinder([0.15, 0.0]);
 
 	%set initial state of the rigidbody
-	i11 =  z; i12 = y; i13 = x;
-	i21 = -z; i22 = x; i23 = y;
-	i31 =  y; i32 = z; i33 = x;
-	i41 =  y; i42 =-z; i43 = x;
+	i11 =  z1; i12 = y1; i13 = x1;
+	i21 = -z1; i22 = x1; i23 = y1;
+	i31 =  y1; i32 = z1; i33 = x1;
+	i41 =  y1; i42 =-z1; i43 = x1;
+	i51 = x2 + 1; i52 = y2; i53 = z2;
+	i61 = x2 - 1; i62 = y2; i63 = z2;
+	i71 = x2; i72 = y2 + 1; i73 = z2;
+	i81 = x2; i82 = y2 - 1; i83 = z2;
 
 	p11 = i11; p12 = i12; p13 = i13;
 	p21 = i21; p22 = i22; p23 = i23;
 	p31 = i31; p32 = i32; p33 = i33;
 	p41 = i41; p42 = i42; p43 = i43;
+	p51 = i51; p52 = i52; p3 = i53;
+	p61 = i61; p62 = i62; p3 = i63;
+	p71 = i71; p72 = i72; p3 = i73;
+	p81 = i81; p82 = i82; p3 = i83;
 
 	figure('Name', 'simulation visualization (NED)')
 
@@ -36,11 +45,20 @@ function rigidbody_visualize(plot_size, rigidbody_pos, rigidbody_R, iterate_time
 		[p21, p22, p23] = cylinder_transform(i21, i22, i23, rigidbody_pos(:, i), rigidbody_R(:, :, i));
 		[p31, p32, p33] = cylinder_transform(i31, i32, i33, rigidbody_pos(:, i), rigidbody_R(:, :, i));
 		[p41, p42, p43] = cylinder_transform(i41, i42, i43, rigidbody_pos(:, i), rigidbody_R(:, :, i));
+		[p51, p52, p53] = cylinder_transform(i51, i52, i53, rigidbody_pos(:, i), rigidbody_R(:, :, i));
+		[p61, p62, p63] = cylinder_transform(i61, i62, i63, rigidbody_pos(:, i), rigidbody_R(:, :, i));
+		[p71, p72, p73] = cylinder_transform(i71, i72, i73, rigidbody_pos(:, i), rigidbody_R(:, :, i));
+		[p81, p82, p83] = cylinder_transform(i81, i82, i83, rigidbody_pos(:, i), rigidbody_R(:, :, i));
 
 		surface(p11, p12, p13, 'FaceColor', 'red');
 		surface(p21, p22, p23, 'FaceColor', 'blue');
 		surface(p31, p32, p33, 'FaceColor', 'yellow');
 		surface(p41, p42, p43, 'FaceColor', 'green');
+		surface(p51, p52, p53, 'FaceColor', 'red');
+		surface(p61, p62, p63, 'FaceColor', 'blue');
+		surface(p71, p72, p73, 'FaceColor', 'yellow');
+		surface(p81, p82, p83, 'FaceColor', 'green');
+
 
 		%display
 		view(3)

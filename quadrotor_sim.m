@@ -176,7 +176,7 @@ function quadrotor_sim
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% Animate the simulation result %
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	rigidbody_visualize([5; 5; 5], pos_arr, R_arr, ITERATION_TIMES, uav_dynamics.dt, 20);
+	rigidbody_visualize([5; 5; 5], pos_arr, R_arr, ITERATION_TIMES, uav_dynamics.dt, 30);
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%
 	%          Plot          %
