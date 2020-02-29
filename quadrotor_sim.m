@@ -111,7 +111,6 @@ function quadrotor_sim
 		f_n(1) = -(-kx(1)*ex(1) - kv(1)*ev(1) - uav_dynamics.mass*uav_dynamics.g*e3(1) + uav_dynamics.mass*a_d(1));
 		f_n(2) = -(-kx(2)*ex(2) - kv(2)*ev(2) - uav_dynamics.mass*uav_dynamics.g*e3(2) + uav_dynamics.mass*a_d(2));
 		f_n(3) = -(-kx(3)*ex(3) - kv(3)*ev(3) - uav_dynamics.mass*uav_dynamics.g*e3(3) + uav_dynamics.mass*a_d(3));
-		f = dot(f_n, uav_dynamics.R*e3); %quadrotor thrust on body frame b3 axis
 
 		%calculate desired dcm
 		b1d = [cos(yaw_d(i)); sin(yaw_d(i)); 0];
@@ -124,6 +123,8 @@ function quadrotor_sim
 		Rd = [b1d_proj b2d b3d];
 		%disp(Rd);
 		%disp(det(Rd))
+
+		f = dot(f_n, Rd * e3); %quadrotor thrust on body frame
 		
 		%attitude manual control input
 		%desired_roll = deg2rad(30);
@@ -142,17 +143,15 @@ function quadrotor_sim
 		eR = 0.5 * math.vee_map_3x3((Rd'*uav_dynamics.R - Rt*Rd));
 		eW = uav_dynamics.W - Rt*Rd*Wd;
 
+		%TODO: should model quadrotor's allocation matrix instead of directly feeding to dynamics
 		%control output: moment
 		WJW = cross(uav_dynamics.W, uav_dynamics.J * uav_dynamics.W);
 		M_feedfoward = WJW - uav_dynamics.J*(math.hat_map_3x3(uav_dynamics.W)*Rt*Rd*Wd - Rt*Rd*W_dot_d);
 		uav_dynamics.M(1) = -kR(1)*eR(1) - kW(1)*eW(1) + M_feedfoward(1);
 		uav_dynamics.M(2) = -kR(2)*eR(2) - kW(2)*eW(2) + M_feedfoward(2);
 		uav_dynamics.M(3) = -kR(3)*eR(3) - kW(3)*eW(3) + M_feedfoward(3);
-
 		%control output: force
-		f_b = [0; 0; f];
-		%uav_dynamics.f = uav_dynamics.R * f_b;
-		uav_dynamics.f = f_n;
+		uav_dynamics.f = f* Rd* e3;
 
 		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 		% Record datas for plotting %
