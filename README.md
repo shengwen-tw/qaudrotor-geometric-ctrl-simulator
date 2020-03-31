@@ -1,4 +1,4 @@
-# omnicoptor-sim
+# quadrotor geometry tracking controller simulator
 
 A matlab/octave simulator of quadrotor control based on Geometry Tracking Controller.
 
