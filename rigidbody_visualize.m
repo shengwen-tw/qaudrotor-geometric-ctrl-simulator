@@ -5,9 +5,6 @@
 %sleep_time: the time to sleep after every iteration of visualization
 %skip_cnt: skip count of the visualization since it is too slow
 function rigidbody_visualize(plot_size, rigidbody_pos, rigidbody_R, iterate_times, sleep_time, skip_cnt)
-	%create 3d space
-	space_len = 5; %[m]
-
 	%define shape of quadrotor
 	[x1 y1 z1] = cylinder([0.2 0.2]);
 	[x2, y2, z2] = cylinder([0.15, 0.0]);
