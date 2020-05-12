@@ -27,8 +27,8 @@ function quadrotor_sim
 	quad_sim_greeting(uav_dynamics, ITERATION_TIMES, init_attitude);
 
 	%controller gains
-	kx = [5.0; 5.0; 5.0];
-	kv = [2.0; 2.0; 2.0];
+	kx = [7.0; 7.0; 7.0];
+	kv = [3.0; 3.0; 3.0];
 	kR = [10; 10; 10];
 	kW = [2; 2; 2];
 
