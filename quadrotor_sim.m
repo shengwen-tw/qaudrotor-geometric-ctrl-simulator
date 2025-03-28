@@ -72,12 +72,13 @@ function quadrotor_sim
 	%plot datas
 	time_arr = zeros(1, ITERATION_TIMES);
 	accel_arr = zeros(3, ITERATION_TIMES);
-	vel_arr.g = zeros(3, ITERATION_TIMES);
+	vel_arr = zeros(3, ITERATION_TIMES);
 	R_arr = zeros(3, 3, ITERATION_TIMES);
 	euler_arr = zeros(3, ITERATION_TIMES);
 	pos_arr = zeros(3, ITERATION_TIMES);
 	W_dot_arr = zeros(3, ITERATION_TIMES);
 	W_arr = zeros(3, ITERATION_TIMES);
+	f_arr = zeros(1, ITERATION_TIMES);
 	M_arr = zeros(3, ITERATION_TIMES);
 	prv_angle_arr = zeros(1, ITERATION_TIMES);
 	eR_prv_arr = zeros(3, ITERATION_TIMES);
@@ -172,21 +173,32 @@ function quadrotor_sim
 		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 		time_arr(i) = i * uav_dynamics.dt;
 		time_arr(i) = i * uav_dynamics.dt;
-		eR_prv_arr(:, i) = rad2deg(eR_prv);
-		eR_arr(:, i) = rad2deg(eR);
-		eW_arr(:, i) = rad2deg(eW);
+		eR_prv_arr(:, i) = eR_prv;
+		eR_arr(:, i) = eR;
+		eW_arr(:, i) = eW;
 		accel_arr(:, i) = uav_dynamics.a;
-		vel_arr.g(:, i) = uav_dynamics.v;
+		vel_arr(:, i) = uav_dynamics.v;
 		pos_arr(:, i) = uav_dynamics.x;
 		R_arr(:, :, i) = uav_dynamics.R;
-		euler_arr(:, i) = rad2deg(math.dcm_to_euler(uav_dynamics.R));
-		W_dot_arr(:, i) = rad2deg(uav_dynamics.W_dot);
-		W_arr(:, i) = rad2deg(uav_dynamics.W);
+		euler_arr(:, i) = math.dcm_to_euler(uav_dynamics.R);
+		W_dot_arr(:, i) = uav_dynamics.W_dot;
+		W_arr(:, i) = uav_dynamics.W;
+        f_arr(i) = f_total;
 		M_arr(:, i) = uav_dynamics.M;
 		ex_arr(:, i) = ex;
 		ev_arr(:, i) = ev;
-	end
+    end
 
+    %%%%%%%%%%%%
+    % Save log %
+    %%%%%%%%%%%%
+	dt = uav_dynamics.dt;
+	g = uav_dynamics.g;
+	m = uav_dynamics.mass;
+	J = uav_dynamics.J;
+	save('sim_log.mat', 'dt', 'g', 'm', 'J', 'time_arr', ...
+         'pos_arr', 'vel_arr', 'W_arr', 'R_arr', 'euler_arr', 'f_arr', 'M_arr');
+    
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% Animate the simulation result %
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -198,7 +210,7 @@ function quadrotor_sim
 
 	%principle rotation error angle
 	figure('Name', 'principle rotation error angle');
-	plot(time_arr, eR_prv_arr(1, :));
+	plot(time_arr, rad2deg(eR_prv_arr(1, :)));
 	title('principle rotation error angle');
 	xlabel('time [s]');
 	ylabel('x [deg]');
@@ -206,48 +218,48 @@ function quadrotor_sim
 	%attitude error  
 	figure('Name', 'eR');
 	subplot (3, 1, 1);
-	plot(time_arr, eR_arr(1, :));
+	plot(time_arr, rad2deg(eR_arr(1, :)));
 	title('eR');
 	xlabel('time [s]');
 	ylabel('x [deg]');
 	subplot (3, 1, 2);
-	plot(time_arr, eR_arr(2, :));
+	plot(time_arr, rad2deg(eR_arr(2, :)));
 	xlabel('time [s]');
 	ylabel('y [deg]');
 	subplot (3, 1, 3);
-	plot(time_arr, eR_arr(3, :));
+	plot(time_arr, rad2deg(eR_arr(3, :)));
 	xlabel('time [s]');
 	ylabel('z [deg]');
 
 	%attitude rate error
 	figure('Name', 'eW');
 	subplot (3, 1, 1);
-	plot(time_arr, eW_arr(1, :));
+	plot(time_arr, rad2deg(eW_arr(1, :)));
 	title('eW');
 	xlabel('time [s]');
 	ylabel('x [deg/s]');
 	subplot (3, 1, 2);
-	plot(time_arr, eW_arr(2, :));
+	plot(time_arr, rad2deg(eW_arr(2, :)));
 	xlabel('time [s]');
 	ylabel('y [deg/s]');
 	subplot (3, 1, 3);
-	plot(time_arr, eW_arr(3, :));
+	plot(time_arr, rad2deg(eW_arr(3, :)));
 	xlabel('time [s]');
 	ylabel('z [deg/s]');
 
 	%attitude (euler angles)
 	figure('Name', 'attitude (euler angles)');
 	subplot (3, 1, 1);
-	plot(time_arr, euler_arr(1, :));
+	plot(time_arr, rad2deg(euler_arr(1, :)));
 	title('attitude (euler angles)');
 	xlabel('time [s]');
 	ylabel('roll [deg]');
 	subplot (3, 1, 2);
-	plot(time_arr, euler_arr(2, :));
+	plot(time_arr, rad2deg(euler_arr(2, :)));
 	xlabel('time [s]');
 	ylabel('pitch [deg]');
 	subplot (3, 1, 3);
-	plot(time_arr, euler_arr(3, :), time_arr, rad2deg(yaw_d));
+	plot(time_arr, rad2deg(euler_arr(3, :)), time_arr, rad2deg(yaw_d));
 	xlabel('time [s]');
 	ylabel('yaw [deg]');
 
@@ -270,16 +282,16 @@ function quadrotor_sim
 	%velocity
 	figure('Name', 'velocity (NED frame)');
 	subplot (3, 1, 1);
-	plot(time_arr, vel_arr.g(1, :), time_arr, vd(1, :));
+	plot(time_arr, vel_arr(1, :), time_arr, vd(1, :));
 	title('velocity (NED frame)');
 	xlabel('time [s]');
 	ylabel('x [m/s]');
 	subplot (3, 1, 2);
-	plot(time_arr, vel_arr.g(2, :), time_arr, vd(2, :));
+	plot(time_arr, vel_arr(2, :), time_arr, vd(2, :));
 	xlabel('time [s]');
 	ylabel('y [m/s]');
 	subplot (3, 1, 3);
-	plot(time_arr, -vel_arr.g(3, :), time_arr, -vd(3, :));
+	plot(time_arr, -vel_arr(3, :), time_arr, -vd(3, :));
 	xlabel('time [s]');
 	ylabel('-z [m/s]');
 
@@ -331,8 +343,29 @@ function quadrotor_sim
 	xlabel('time [s]');
 	ylabel('z [m/s]');
 
+	%control inputs
+	figure('Name', 'control inputs');
+	subplot (4, 1, 1);
+	plot(time_arr, M_arr(1, :));
+	title('control inputs');
+	xlabel('time [s]');
+	ylabel('M_x');
+	subplot (4, 1, 2);
+	plot(time_arr, M_arr(2, :));
+	xlabel('time [s]');
+	ylabel('M_y');
+	subplot (4, 1, 3);
+	plot(time_arr, M_arr(3, :));
+	xlabel('time [s]');
+	ylabel('M_z');
+    subplot (4, 1, 4);
+    plot(time_arr, f_arr(:));
+	xlabel('time [s]');
+	ylabel('f');
+    
 	disp("Press any key to leave");
 	pause;
+	close all;
 end
 
 function motor_thrusts = quadrotor_thrust_allocation(quad, M, f)
